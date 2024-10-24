@@ -14,9 +14,13 @@ const common_1 = require("@nestjs/common");
 const argon = require("argon2");
 const prisma_service_1 = require("../prisma/prisma.service");
 const library_1 = require("@prisma/client/runtime/library");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 let AuthService = class AuthService {
-    constructor(prisma) {
+    constructor(prisma, jwt, config) {
         this.prisma = prisma;
+        this.jwt = jwt;
+        this.config = config;
     }
     async signIn(data) {
         try {
@@ -30,11 +34,10 @@ let AuthService = class AuthService {
             if (!isCorrectPassword) {
                 throw new common_1.ForbiddenException('Incorrect password');
             }
-            delete user.hash;
-            return { data: user };
+            return this.signToken(user.id, user.email);
         }
         catch (error) {
-            throw new common_1.InternalServerErrorException(error, "Something went wrong");
+            throw new common_1.InternalServerErrorException(error, 'Something went wrong');
         }
     }
     async signUp(data) {
@@ -48,8 +51,7 @@ let AuthService = class AuthService {
                     lastName: data?.lastName,
                 },
             });
-            delete user.hash;
-            return { data: user };
+            return this.signToken(user.id, user.email);
         }
         catch (error) {
             if (error instanceof library_1.PrismaClientKnownRequestError) {
@@ -57,13 +59,29 @@ let AuthService = class AuthService {
                     throw new common_1.ForbiddenException('Email already exists');
                 }
             }
-            throw new common_1.InternalServerErrorException("Something went wrong");
+            throw new common_1.InternalServerErrorException('Something went wrong');
         }
+    }
+    async signToken(userId, email) {
+        const payload = {
+            sub: userId,
+            email,
+        };
+        const secret = this.config.get('JWT_SECRET');
+        const token = await this.jwt.signAsync(payload, {
+            expiresIn: '15m',
+            secret,
+        });
+        return {
+            access_token: token
+        };
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)({}),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map
