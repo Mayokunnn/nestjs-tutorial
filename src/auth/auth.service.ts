@@ -35,7 +35,7 @@ export class AuthService {
         throw new ForbiddenException('Incorrect password');
       }
 
-      return this.signToken(user.id, user.email);
+      return this.signToken(user.uuid, user.email);
     } catch (error) {
       throw new InternalServerErrorException(error, 'Something went wrong');
     }
@@ -54,7 +54,7 @@ export class AuthService {
         },
       });
 
-      return this.signToken(user.id, user.email);
+      return this.signToken(user.uuid, user.email);
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {

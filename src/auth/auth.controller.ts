@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto';
 
@@ -12,6 +12,7 @@ export class AuthController {
     return this.authService.signUp(data);
   }
 
+  @HttpCode(HttpStatus.OK) 
   @Post('signin')
   signIn(@Body() data: LoginDto) {
     return this.authService.signIn(data);

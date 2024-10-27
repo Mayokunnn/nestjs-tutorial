@@ -34,7 +34,7 @@ let AuthService = class AuthService {
             if (!isCorrectPassword) {
                 throw new common_1.ForbiddenException('Incorrect password');
             }
-            return this.signToken(user.id, user.email);
+            return this.signToken(user.uuid, user.email);
         }
         catch (error) {
             throw new common_1.InternalServerErrorException(error, 'Something went wrong');
@@ -51,7 +51,7 @@ let AuthService = class AuthService {
                     lastName: data?.lastName,
                 },
             });
-            return this.signToken(user.id, user.email);
+            return this.signToken(user.uuid, user.email);
         }
         catch (error) {
             if (error instanceof library_1.PrismaClientKnownRequestError) {

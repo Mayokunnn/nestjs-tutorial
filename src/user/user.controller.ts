@@ -1,13 +1,14 @@
 /* eslint-disable prettier/prettier */
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Request } from 'express';
+import { GetUser } from '@/auth/decorators';
+import { JwtGuard } from '@/auth/guards';
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { User } from '@prisma/client';
 
+@UseGuards(JwtGuard)
 @Controller('users')
 export class UserController {
-  @UseGuards(AuthGuard('jwt'))
   @Get('me')
-  getMe(@Req() Req: Request) {
-    return Req.user;
+  getMe(@GetUser() user: User, @GetUser("email") email: string) {
+    return {user, email};
   }
 }
